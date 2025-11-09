@@ -42,7 +42,7 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            position: relative; /* Para centralizar os botões abaixo */
+            /* position: relative; */ /* REMOVIDO - Não é mais necessário */
         }
 
         header {
@@ -75,7 +75,7 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            margin-bottom: 30px; /* Espaço para os botões */
+            /* margin-bottom: 30px; */ /* REMOVIDO - Navegação agora cuida da margem */
         }
 
         /* O Cartão em Si - Design inspirado na imagem */
@@ -115,8 +115,6 @@
             margin: 0;
             line-height: 1;
         }
-        /* Para usar uma imagem, substitua o texto dentro de .card-logo por <img src="caminho/para/sua-logo.png" alt="Logo" style="height: 40px;"> */
-
 
         /* Seção da Objeção */
         .card-objection-section {
@@ -141,26 +139,31 @@
         /* Seção da Resposta */
         .card-response-section {
             padding: 25px;
-            text-align: justify; /* ALTERADO - Texto justificado */
+            text-align: justify; /* Texto justificado */
             background-color: var(--card-bg); /* Fundo da resposta preto */
             color: var(--text-light);
             font-size: 1.1rem;
             line-height: 1.6;
-            /* overflow-y: auto; */ /* REMOVIDO - Para rolagem se a resposta for muito longa */
-            /* max-height: 45%; */ /* REMOVIDO - Limita a altura da resposta para não dominar o cartão */
             flex-shrink: 0; /* Previne que encolha */
         }
 
-        /* Navegação */
+        /* --- NAVEGAÇÃO ALTERADA --- */
         .navigation {
             display: flex;
-            justify-content: space-between;
-            align-items: center;
+            flex-direction: column; /* Coloca os botões acima do contador */
+            align-items: center; /* Centraliza o contador */
             width: 100%;
-            max-width: 450px; /* Alinha com a largura do card-viewport */
-            margin-top: 20px;
-            position: absolute;
-            bottom: 20px; /* Posiciona os botões no rodapé da página */
+            max-width: 450px; /* Alinha com a largura do container */
+            margin-top: 25px; /* Espaço *depois* do card */
+            gap: 15px; /* Espaço entre os botões e o contador */
+            /* position: absolute; */ /* REMOVIDO */
+            /* bottom: 20px; */ /* REMOVIDO */
+        }
+
+        .button-group {
+            display: flex;
+            justify-content: space-between;
+            width: 100%; /* Faz os botões irem para as pontas */
         }
 
         .card-counter {
@@ -171,6 +174,8 @@
             border-radius: 20px;
             font-weight: bold;
         }
+        /* --- FIM DA NAVEGAÇÃO ALTERADA --- */
+
 
         .nav-btn {
             background-color: var(--primary-color);
@@ -206,9 +211,6 @@
             header h1 {
                 font-size: 1.8rem;
             }
-            .card-viewport {
-                /* height: 450px; */ /* Removido da responsividade também */
-            }
             .card {
                 min-height: 450px; /* Ajusta o min-height responsivo */
             }
@@ -233,8 +235,7 @@
                 font-size: 1.5rem;
             }
             .card-viewport {
-                /* height: 400px; */ /* Removido da responsividade também */
-                margin-bottom: 20px;
+                margin-bottom: 0; /* Limpando margem */
             }
             .card {
                 min-height: 400px; /* Ajusta o min-height responsivo */
@@ -246,21 +247,8 @@
                 font-size: 0.9rem;
                 padding: 15px;
             }
-            .navigation {
-                flex-wrap: wrap;
-                justify-content: center;
-                gap: 15px; /* Espaço entre botões em telas pequenas */
-                bottom: 10px;
-            }
-            .nav-btn {
-                width: 45%; /* Ocupa quase metade da largura para 2 botões por linha */
-                text-align: center;
-            }
-            .card-counter {
-                width: 100%;
-                text-align: center;
-                order: -1; /* Coloca o contador acima dos botões */
-            }
+            
+            /* Regras de navegação antigas removidas, pois a nova é responsiva por padrão */
         }
     </style>
 </head>
@@ -286,11 +274,13 @@
         </div>
 
         <div class="navigation">
-            <button id="prev-btn" class="nav-btn">&larr; Anterior</button>
+            <div class="button-group">
+                <button id="prev-btn" class="nav-btn">&larr; Anterior</button>
+                <button id="next-btn" class="nav-btn">Próxima &rarr;</button>
+            </div>
             <div class="card-counter" id="card-counter"></div>
-            <button id="next-btn" class="nav-btn">Próxima &rarr;</button>
         </div>
-    </div>
+        </div>
 
     <script>
         // --- INÍCIO DA ÁREA EDITÁVEL ---
@@ -330,7 +320,7 @@
             },
             {
                 objection: "O condomínio é muito caro.",
-                response: "Compreendo a preocupação com os custos fixos. O valor do condomínio reflete diretamente a infraestrutura e os serviços que ele oferece: segurança 24h, área de lazer completa, manutenção em dia, etc. Viver aqui significa ter (mencionar benefícios) sem precisar sair de casa. Vamos detalhar o que está incluso? Muitas vezes, esses serviços acabam gerando economia em outras áreas."
+                response: "Compreendo a preocupação com os custos fixos. O valor do condomínio reflete diretamente a infraestrutura e os services que ele oferece: segurança 24h, área de lazer completa, manutenção em dia, etc. Viver aqui significa ter (mencionar benefícios) sem precisar sair de casa. Vamos detalhar o que está incluso? Muitas vezes, esses serviços acabam gerando economia em outras áreas."
             },
             {
                 objection: "O imóvel é antigo / precisa de reforma.",
