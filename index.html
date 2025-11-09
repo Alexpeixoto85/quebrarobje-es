@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Baralho de Objeções Imobiliárias</title>
+    
+    <style>
+        /* Variáveis de Cores e Fontes */
+        :root {
+            --primary-color: #FFD700; /* Amarelo/Dourado */
+            --secondary-color: #343a40; /* Preto Quase Total */
+            --text-light: #ffffff;
+            --text-dark: #212529;
+            --bg-body: #f0f2f5; /* Cinza claro para o fundo */
+            --card-bg: #1a1a1a; /* Fundo do cartão quase preto */
+            --card-border: #FFD700; /* Borda do cartão dourada */
+        }
+
+        /* Reset e Estilo Básico */
+        body {
+            font-family: 'Montserrat', sans-serif; /* Fonte moderna e robusta */
+            background-color: var(--bg-body);
+            color: var(--text-light);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        /* Container Principal do Baralho */
+        .deck-container {
+            max-width: 450px; /* Largura ajustada para parecer mais com um cartão físico */
+            width: 100%;
+            background: none; /* Sem fundo próprio, o cartão tem o estilo */
+            border-radius: 15px;
+            padding: 0; /* Remove padding extra */
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative; /* Para centralizar os botões abaixo */
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            /* background-color: var(--bg-body); */ /* Fundo do header para contraste */
+            width: 100%;
+            border-radius: 10px;
+        }
+
+        header h1 {
+            margin: 0;
+            color: var(--secondary-color); /* Título em preto para contraste */
+            font-size: 2.2rem;
+            font-weight: 700;
+        }
+
+        header p {
+            margin: 8px 0 0;
+            color: var(--secondary-color);
+            font-size: 1rem;
+            font-weight: 500;
+        }
+
+        /* Visualização do Cartão (Palco) */
+        .card-viewport {
+            /* height: 500px; */ /* REMOVIDO - Deixando o card crescer */
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 30px; /* Espaço para os botões */
+        }
+
+        /* O Cartão em Si - Design inspirado na imagem */
+        .card {
+            width: 90%; /* Ocupa 90% do viewport */
+            /* height: 100%; */ /* ALTERADO */
+            min-height: 500px; /* ADICIONADO - Garante um tamanho mínimo */
+            background: var(--card-bg); /* Fundo preto do cartão */
+            border: 3px solid var(--card-border); /* Borda dourada */
+            border-radius: 15px;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden; /* Garante que o conteúdo não vaze */
+            color: var(--text-light);
+            position: relative;
+            transform: scale(1); /* Inicia sem escala */
+            transition: transform 0.3s ease-in-out; /* Animação ao trocar de cartão */
+        }
+
+        .card.loading {
+            transform: scale(0.95);
+        }
+
+        /* Seção do Topo do Cartão (Logo/Título) */
+        .card-top-section {
+            background-color: var(--primary-color); /* Fundo dourado */
+            padding: 15px 20px;
+            text-align: center;
+            border-bottom: 2px solid rgba(0, 0, 0, 0.2); /* Linha divisória */
+        }
+
+        .card-logo {
+            font-size: 2.5rem; /* Tamanho para o "lobo" */
+            font-weight: bold;
+            color: var(--secondary-color); /* Cor do texto/logo */
+            margin: 0;
+            line-height: 1;
+        }
+        /* Para usar uma imagem, substitua o texto dentro de .card-logo por <img src="caminho/para/sua-logo.png" alt="Logo" style="height: 40px;"> */
+
+
+        /* Seção da Objeção */
+        .card-objection-section {
+            flex-grow: 1; /* Ocupa o espaço restante */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 30px;
+            text-align: center;
+            background-color: var(--secondary-color); /* Fundo da objeção quase preto */
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .card-objection-section h2 {
+            font-size: 2.2rem;
+            color: var(--primary-color); /* Cor da objeção dourada */
+            margin: 0;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+
+        /* Seção da Resposta */
+        .card-response-section {
+            padding: 25px;
+            text-align: justify; /* ALTERADO - Texto justificado */
+            background-color: var(--card-bg); /* Fundo da resposta preto */
+            color: var(--text-light);
+            font-size: 1.1rem;
+            line-height: 1.6;
+            /* overflow-y: auto; */ /* REMOVIDO - Para rolagem se a resposta for muito longa */
+            /* max-height: 45%; */ /* REMOVIDO - Limita a altura da resposta para não dominar o cartão */
+            flex-shrink: 0; /* Previne que encolha */
+        }
+
+        /* Navegação */
+        .navigation {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+            max-width: 450px; /* Alinha com a largura do card-viewport */
+            margin-top: 20px;
+            position: absolute;
+            bottom: 20px; /* Posiciona os botões no rodapé da página */
+        }
+
+        .card-counter {
+            font-size: 1rem;
+            color: var(--secondary-color); /* Contador em preto */
+            background-color: var(--primary-color);
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-weight: bold;
+        }
+
+        .nav-btn {
+            background-color: var(--primary-color);
+            color: var(--secondary-color); /* Texto do botão em preto */
+            border: none;
+            padding: 12px 25px;
+            border-radius: 30px;
+            cursor: pointer;
+            font-size: 1.1rem;
+            font-weight: 700;
+            transition: background-color 0.3s, transform 0.2s;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        .nav-btn:hover {
+            background-color: #e0b800; /* Um dourado um pouco mais escuro */
+            transform: translateY(-3px);
+        }
+
+        .nav-btn:disabled {
+            background-color: #cccccc;
+            color: #666666;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        /* Responsividade para Telas Menores */
+        @media (max-width: 768px) {
+            .deck-container {
+                padding: 10px;
+            }
+            header h1 {
+                font-size: 1.8rem;
+            }
+            .card-viewport {
+                /* height: 450px; */ /* Removido da responsividade também */
+            }
+            .card {
+                min-height: 450px; /* Ajusta o min-height responsivo */
+            }
+            .card-objection-section h2 {
+                font-size: 1.8rem;
+            }
+            .card-response-section {
+                font-size: 1rem;
+                padding: 20px;
+            }
+            .nav-btn {
+                padding: 10px 20px;
+                font-size: 1rem;
+            }
+            .card-counter {
+                font-size: 0.9rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            header h1 {
+                font-size: 1.5rem;
+            }
+            .card-viewport {
+                /* height: 400px; */ /* Removido da responsividade também */
+                margin-bottom: 20px;
+            }
+            .card {
+                min-height: 400px; /* Ajusta o min-height responsivo */
+            }
+            .card-objection-section h2 {
+                font-size: 1.5rem;
+            }
+            .card-response-section {
+                font-size: 0.9rem;
+                padding: 15px;
+            }
+            .navigation {
+                flex-wrap: wrap;
+                justify-content: center;
+                gap: 15px; /* Espaço entre botões em telas pequenas */
+                bottom: 10px;
+            }
+            .nav-btn {
+                width: 45%; /* Ocupa quase metade da largura para 2 botões por linha */
+                text-align: center;
+            }
+            .card-counter {
+                width: 100%;
+                text-align: center;
+                order: -1; /* Coloca o contador acima dos botões */
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="deck-container">
+        <header>
+            <h1>ImobiCards</h1>
+            <p>Seu guia rápido para quebrar objeções</p>
+        </header>
+
+        <div class="card-viewport">
+            <div class="card" id="card">
+                <div class="card-top-section">
+                    <p class="card-logo">IMOBI</p> </div>
+                <div class="card-objection-section">
+                    <h2 id="objection-text"></h2>
+                </div>
+                <div class="card-response-section">
+                    <p id="response-text"></p>
+                </div>
+            </div>
+        </div>
+
+        <div class="navigation">
+            <button id="prev-btn" class="nav-btn">&larr; Anterior</button>
+            <div class="card-counter" id="card-counter"></div>
+            <button id="next-btn" class="nav-btn">Próxima &rarr;</button>
+        </div>
+    </div>
+
+    <script>
+        // --- INÍCIO DA ÁREA EDITÁVEL ---
+        // Adicione suas objeções e respostas imobiliárias aqui.
+        const deckData = [
+            {
+                objection: "Está muito caro.",
+                response: "Entendo que o valor é uma consideração importante. Mas, comparado a quê? Um imóvel é um investimento único. Estou aqui para mostrar o *valor* real que este imóvel oferece: localização, potencial de valorização, qualidade de vida e segurança. Vamos detalhar esses pontos?"
+            },
+            {
+                objection: "Vou pensar / conversar com a família.",
+                response: "Compreendo perfeitamente, é uma decisão significativa. Para ajudar na conversa, quais são os pontos que mais te agradaram no imóvel e quais são as principais dúvidas que ainda precisam ser esclarecidas para sua família? Assim, já posso te adiantar as informações que farão a diferença."
+            },
+            {
+                objection: "Vou esperar o mercado baixar.",
+                response: "É natural querer o melhor momento, mas o mercado imobiliário tem seus ciclos. A verdade é que esperar pode significar perder oportunidades únicas, como este imóvel que atende aos seus critérios. Além disso, os custos de construção e inflação tendem a subir. Que tal avaliarmos juntos o cenário atual e as projeções para entender se a espera realmente vale a pena para *este* imóvel?"
+            },
+            {
+                objection: "Não tenho o valor de entrada.",
+                response: "Essa é uma preocupação comum, e estou aqui para ajudar a encontrar soluções. Você já explorou todas as opções de financiamento e linhas de crédito que existem hoje no mercado? Tenho parceiros que podem te auxiliar na análise de perfil e mostrar alternativas viáveis, como o uso de FGTS ou programas específicos. Que tal conversarmos com um especialista financeiro para mapear suas possibilidades?"
+            },
+            {
+                objection: "Preciso de um imóvel maior / menor.",
+                response: "Entendido. No mercado imobiliário, 'ideal' é um balanço entre espaço, localização, preço e suas necessidades de hoje e amanhã. Qual seria o principal motivo para a necessidade de um espaço diferente? Talvez este imóvel ofereça uma solução criativa ou benefícios que compensem o tamanho, como área de lazer, infraestrutura ou potencial de adaptação. Vamos revisitar os espaços e pensar juntos?"
+            },
+            {
+                objection: "A localização não é ideal.",
+                response: "Entendo que a localização é crucial. O que exatamente te preocupa nesta região? Muitos clientes inicialmente têm essa impressão, mas depois descobrem as vantagens: acesso a (mencionar pontos fortes: escolas, comércio, transporte), segurança (se aplicável) e a valorização da área. Permita-me te mostrar os pontos positivos que talvez você não tenha percebido ainda."
+            },
+            {
+                objection: "Prefiro construir a comprar pronto.",
+                response: "Construir é um sonho para muitos, e entendo o desejo de personalizar. No entanto, comprar pronto oferece vantagens como: economia de tempo, ausência de dores de cabeça com obra e custos adicionais, e a possibilidade de mudar imediatamente. Além disso, este imóvel já possui (mencionar diferencial: acabamento, paisagismo). Que tal avaliarmos os prós e contras de cada opção para o seu momento atual?"
+            },
+            {
+                objection: "Achei um imóvel parecido por menos.",
+                response: "É ótimo que você esteja pesquisando e comparando! O mercado oferece muitas opções. Mas, 'parecido' nem sempre significa 'igual'. Quais são os detalhes do outro imóvel? Muitas vezes, pequenas diferenças em acabamento, idade do imóvel, documentação, infraestrutura do condomínio, ou até mesmo a incidência de sol, justificam a variação de preço. Vamos analisar os dois juntos para garantir que você faça a melhor escolha?"
+            },
+            {
+                objection: "O condomínio é muito caro.",
+                response: "Compreendo a preocupação com os custos fixos. O valor do condomínio reflete diretamente a infraestrutura e os serviços que ele oferece: segurança 24h, área de lazer completa, manutenção em dia, etc. Viver aqui significa ter (mencionar benefícios) sem precisar sair de casa. Vamos detalhar o que está incluso? Muitas vezes, esses serviços acabam gerando economia em outras áreas."
+            },
+            {
+                objection: "O imóvel é antigo / precisa de reforma.",
+                response: "Sim, ele tem uma construção mais clássica, o que muitas vezes significa materiais mais robustos e cômodos mais amplos, algo raro hoje. A reforma é uma oportunidade de deixar tudo exatamente com o seu gosto, e o valor de aquisição já reflete essa necessidade. Você está comprando o potencial e a localização, e o resultado final será um imóvel valorizado e personalizado."
+            },
+            {
+                objection: "Não gostei do acabamento.",
+                response: "Entendo que o acabamento é algo muito pessoal. A boa notícia é que isso é 100% personalizável. O mais difícil de mudar – a localização, a estrutura, a planta – este imóvel tem de excelente. Pense neste acabamento como uma tela em branco. O valor que negociarmos pode lhe dar a margem para trocar o piso ou a pintura e deixá-lo perfeito para você."
+            },
+            {
+                objection: "Tenho medo do financiamento.",
+                response: "É um passo grande, e é normal sentir receio. Um financiamento não é uma dívida, é um investimento alavancado. Você usa o capital do banco para construir seu patrimônio, enquanto o próprio imóvel se valoriza. Meu trabalho é garantir que você faça isso com segurança, encontrando parcelas que caibam no seu orçamento. Vamos simular sem compromisso?"
+            },
+            {
+                objection: "Vou vender o meu primeiro.",
+                response: "Essa é uma estratégia comum. Você já tem uma avaliação profissional do seu imóvel? Posso te ajudar com isso. O mercado está aquecido para imóveis como o seu (se for o caso). Enquanto isso, podemos analisar este imóvel e entender as condições. Já pensou em usar seu imóvel como parte do pagamento? Algumas construtoras ou proprietários aceitam permuta."
+            },
+            {
+                objection: "O imóvel não tem sol da manhã / sol da tarde.",
+                response: "A posição solar é um detalhe importante. Este imóvel (tem sol da tarde), o que o torna muito iluminado e ótimo para secar roupas. Ou (tem sol da manhã), sendo mais fresco no fim do dia. Não existe posição solar 'ruim', existe a que se adapta melhor ao seu estilo de vida. Qual é a sua rotina? Vamos ver como ela se encaixa aqui."
+            },
+            {
+                objection: "A planta do apartamento não me agrada.",
+                response: "Entendo, a distribuição dos espaços é fundamental. O que exatamente na planta você gostaria que fosse diferente? Às vezes, uma pequena alteração, como abrir uma cozinha ou integrar a varanda, pode transformar completamente o imóvel. Muitos arquitetos fazem milagres hoje em dia. O ponto forte aqui é (mencionar localização/preço) que compensa esse ajuste."
+            },
+            {
+                objection: "É muito longe do meu trabalho.",
+                response: "Compreendo, o tempo de deslocamento é um fator real. No entanto, muitos clientes estão trocando o 'perto do trabalho' pelo 'perto da qualidade de vida'. Este bairro oferece (parques, segurança, escolas) que talvez seu bairro atual não tenha. Além disso, com o home office se tornando mais comum, morar em um lugar que você ama está se tornando a prioridade. Vamos pesar o que é mais importante para você nos próximos anos?"
+            },
+            {
+                objection: "Não tem área de lazer / é muito simples.",
+                response: "Entendo. Este imóvel foca em quem busca mais privacidade e um custo de condomínio mais baixo, já que não há manutenção de piscinas ou academias. É ideal para quem já tem um clube ou prefere usar os parques da cidade. Você ganha em espaço interno e economia, investindo seu dinheiro onde realmente importa para você."
+            },
+            {
+                objection: "O proprietário não baixa o preço.",
+                response: "O proprietário está ciente do valor do imóvel que tem, especialmente pela (localização/acabamento/demanda). Minha função como corretor é mediar isso. Se o valor está no limite, que tal focarmos em outras formas de tornar o negócio vantajoso? Podemos negociar prazos de pagamento, a inclusão de móveis ou a documentação. Onde podemos encontrar um meio-termo?"
+            },
+            {
+                objection: "Estou apenas olhando.",
+                response: "Perfeito, é ótimo que você esteja pesquisando com calma. Meu objetivo não é te apressar, mas sim te ajudar a entender o mercado. Para eu não te mostrar imóveis que não interessam, o que exatamente você busca? Qual seria o imóvel 'dos sonhos'? Assim, se eu encontrar uma oportunidade única, posso te avisar. Qual o seu principal critério de busca?"
+            },
+            {
+                objection: "A documentação parece complicada.",
+                response: "Lidar com documentação pode ser intimidador, mas é por isso que estou aqui. Faço parte de uma imobiliária séria e temos um departamento jurídico que faz uma análise completa de todos os documentos. Sua compra será 100% segura. Posso te explicar cada certidão e cada etapa do processo. A transparência é minha prioridade."
+            }
+        ];
+        // --- FIM DA ÁREA EDITÁVEL ---
+
+
+        // --- LÓGICA DO APLICATIVO (Não precisa editar) ---
+
+        document.addEventListener('DOMContentLoaded', () => {
+            // Seletores dos Elementos
+            const card = document.getElementById('card');
+            const objectionText = document.getElementById('objection-text');
+            const responseText = document.getElementById('response-text');
+            const prevBtn = document.getElementById('prev-btn');
+            const nextBtn = document.getElementById('next-btn');
+            const cardCounter = document.getElementById('card-counter');
+
+            let currentCardIndex = 0;
+
+            // Função para carregar um cartão
+            function loadCard(index) {
+                if (index < 0 || index >= deckData.length) return;
+
+                const data = deckData[index];
+                
+                // Adiciona uma classe para animação de carregamento/troca
+                card.classList.add('loading');
+
+                setTimeout(() => {
+                    objectionText.textContent = data.objection;
+                    responseText.textContent = data.response;
+                    cardCounter.textContent = `${index + 1} / ${deckData.length}`;
+                    
+                    updateNavButtons();
+                    card.classList.remove('loading'); // Remove a classe após carregar
+                }, 300); // Pequeno delay para a animação
+            }
+
+            // Função para atualizar os botões de navegação
+            function updateNavButtons() {
+                prevBtn.disabled = currentCardIndex === 0;
+                nextBtn.disabled = currentCardIndex === deckData.length - 1;
+            }
+
+            // Evento: Botão Próximo
+            nextBtn.addEventListener('click', () => {
+                if (currentCardIndex < deckData.length - 1) {
+                    currentCardIndex++;
+                    loadCard(currentCardIndex);
+                }
+            });
+
+            // Evento: Botão Anterior
+            prevBtn.addEventListener('click', () => {
+                if (currentCardIndex > 0) {
+                    currentCardIndex--;
+                    loadCard(currentCardIndex);
+                }
+            });
+
+            // Carregar o primeiro cartão ao iniciar
+            loadCard(currentCardIndex);
+        });
+    </script>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;700&display=swap" rel="stylesheet">
+</body>
+</html>
